@@ -74,4 +74,8 @@ tls-dev: ## Starta Core med TLS (kräver tls-setup)
 		echo "❌ TLS-certifikat saknas. Kör 'make tls-setup' först."; \
 		exit 1; \
 	fi
-	uvicorn src.app.main:app --ssl-keyfile ./certs/localhost-key.pem --ssl-certfile ./certs/localhost.pem --reload --host 127.0.0.1 --port 8000
+	@echo "🔒 Startar Core med TLS..."
+	@echo "URL: https://127.0.0.1:8000"
+	@echo "API Docs: https://127.0.0.1:8000/docs"
+	@echo ""
+	uvicorn src.app.main:app --ssl-keyfile ./certs/localhost-key.pem --ssl-certfile ./certs/localhost-key.pem --reload --host 127.0.0.1 --port 8000

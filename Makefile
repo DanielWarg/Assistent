@@ -123,9 +123,39 @@ clean: ## Rensa alla byggfiler
 	@echo "Rensar Core..."
 	cd core && make clean
 	@echo "Rensar UI..."
-	cd ui && rm -rf .next out dist
+	cd ui && npm run clean
 	@echo "Rensar genererade filer..."
 	rm -f core/openapi.json ui/src/types/api.d.ts
+
+# Preflight & Sprint 0 targets
+preflight: ## Preflight check - nollställ och verifiera miljö
+	@echo "🚀 Preflight check..."
+	@echo "1. Rensar gamla artefakter..."
+	make clean
+	@echo "2. Verifierar miljö..."
+	@python3.11 --version || (echo "❌ Python 3.11 krävs" && exit 1)
+	@node --version || (echo "❌ Node.js krävs" && exit 1)
+	@echo "✅ Preflight klar!"
+
+sprint-0: ## Sprint 0 - få hela slingan att leva
+	@echo "🏃‍♂️ Sprint 0 - Baseline verification..."
+	@echo "1. Starta Core..."
+	@echo "   cd core && make dev"
+	@echo ""
+	@echo "2. Starta UI..."
+	@echo "   cd ui && pnpm dev"
+	@echo ""
+	@echo "3. Verifiera baseline..."
+	@echo "   make verify"
+	@echo "   make selftest"
+	@echo "   make report-slowest"
+	@echo "   cd ui && npx playwright test"
+	@echo ""
+	@echo "🎯 Definition of Done:"
+	@echo "   - make verify GRÖN (p95 ≤ SLA, SSE ≥ min events)"
+	@echo "   - make selftest producerar rapporter"
+	@echo "   - make report-slowest genererar MD med top-10"
+	@echo "   - UI smoke passerar"
 
 docker: ## Bygga Docker images
 	@echo "Bygger Core Docker image..."
