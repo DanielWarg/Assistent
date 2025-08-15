@@ -1,0 +1,100 @@
+{
+  "test_samples": {
+    "emails": [
+      "user@example.com",
+      "admin@jarvis.local",
+      "test.user+tag@domain.co.uk",
+      "john.doe@company.org"
+    ],
+    "phone_numbers": [
+      "+46 70 123 45 67",
+      "070 123 45 67",
+      "+1 555 123 4567",
+      "0123 456 789"
+    ],
+    "jwt_tokens": [
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwiYXVkIjoiZXhhbXBsZSIsImV4cCI6MTYxNjI0NzIwMCwiaWF0IjoxNjE2MjQzNjAwLCJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.test_signature_here"
+    ],
+    "oauth_codes": [
+      "abc123def456ghi789jkl012mno345pqr678stu901vwx234",
+      "xyz987wvu654tsr321qpo098nml765kji432hgf109edc876",
+      "mno345pqr678stu901vwx234abc123def456ghi789jkl012"
+    ],
+    "iban_numbers": [
+      "SE3550000000054910000003",
+      "DE89370400440532013000",
+      "GB29NWBK60161331926819",
+      "FR1420041010050500013M02606"
+    ],
+    "credit_cards": [
+      "4111 1111 1111 1111",
+      "5555 5555 5555 4444",
+      "4000 0000 0000 0002",
+      "3782 822463 10005"
+    ],
+    "api_keys": [
+      "sk-1234567890abcdef1234567890abcdef1234567890abcdef",
+      "pk_live_1234567890abcdef1234567890abcdef1234567890",
+      "AIzaSyB1234567890abcdefghijklmnopqrstuvwxyz",
+      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    ],
+    "mixed_content": {
+      "user_profile": {
+        "email": "user@example.com",
+        "phone": "+46 70 123 45 67",
+        "api_key": "sk-1234567890abcdef1234567890abcdef1234567890abcdef",
+        "jwt_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+      },
+      "payment_info": {
+        "card_number": "4111 1111 1111 1111",
+        "iban": "SE3550000000054910000003"
+      },
+      "oauth_data": {
+        "authorization_code": "abc123def456ghi789jkl012mno345pqr678stu901vwx234",
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+      }
+    }
+  },
+  "expected_masked": {
+    "emails": [
+      "us**@ex****",
+      "ad**@ja****",
+      "te****@do****",
+      "jo****@co****"
+    ],
+    "phone_numbers": [
+      "+46***67",
+      "070***67",
+      "+1***567",
+      "012***789"
+    ],
+    "jwt_tokens": [
+      "eyJhbGci...eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.********************",
+      "eyJ0eXAi...eyJpc3MiOiJodHRwczovL2V4YW1wbGUuY29tIiwiYXVkIjoiZXhhbXBsZSIsImV4cCI6MTYxNjI0NzIwMCwiaWF0IjoxNjE2MjQzNjAwLCJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.********************"
+    ],
+    "oauth_codes": [
+      "abc1...012",
+      "xyz9...876",
+      "mno3...012"
+    ],
+    "iban_numbers": [
+      "SE35...003",
+      "DE89...000",
+      "GB29...819",
+      "FR14...606"
+    ],
+    "credit_cards": [
+      "4111...1111",
+      "5555...4444",
+      "4000...0002",
+      "3782...0005"
+    ],
+    "api_keys": [
+      "sk-12...def",
+      "pk_live_12...def",
+      "AIzaSyB12...xyz",
+      "Bearer eyJhbGci...J9"
+    ]
+  }
+}

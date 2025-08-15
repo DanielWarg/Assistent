@@ -1,0 +1,133 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+      
+      - name: Install dependencies
+        run: |
+          cd core
+          python -m venv .venv && source .venv/bin/activate
+          pip install -U pip && pip install -r requirements-dev.txt
+      
+      - name: Run linting
+        run: |
+          cd core
+          source .venv/bin/activate
+          ruff check src tests
+          mypy src
+      
+      - name: Run tests
+        run: |
+          cd core
+          source .venv/bin/activate
+          pytest -v --cov=src --cov-report=term-missing
+      
+      - name: Run selftest and validate SLA
+        run: |
+          cd core
+          source .venv/bin/activate
+          # Start core in background
+          nohup uvicorn src.app.main:app --host 127.0.0.1 --port 8000 >/dev/null 2>&1 &
+          sleep 3
+          # Run selftest
+          python -m src.scripts.flow_selftest --out ./logs/flow.jsonl
+          # Validate p95 SLA (router p95 <= 500ms, e2e p95 <= 1000ms)
+          ROUTER_P95=$(curl -sf http://127.0.0.1:8000/metrics | jq -r '.router.p95 // empty')
+          E2E_P95=$(curl -sf http://127.0.0.1:8000/metrics | jq -r '.e2e.p95 // empty')
+          if [[ "$ROUTER_P95" != "" && $(echo "$ROUTER_P95 > 0.5" | bc -l) -eq 1 ]]; then
+            echo "❌ Router p95 ($ROUTER_P95) exceeds SLA (500ms)"
+            exit 1
+          fi
+          if [[ "$E2E_P95" != "" && $(echo "$E2E_P95 > 1.0" | bc -l) -eq 1 ]]; then
+            echo "❌ E2E p95 ($E2E_P95) exceeds SLA (1000ms)"
+            exit 1
+          fi
+          echo "✅ SLA validation passed: Router p95=$ROUTER_P95, E2E p95=$E2E_P95"
+      
+      - name: Go/No-Go runner
+        run: |
+          cd core
+          source .venv/bin/activate
+          export API_KEY=dev-secret
+          export CORE_BASE_URL=http://127.0.0.1:8000
+          python -m src.scripts.go_no_go_runner
+      
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./core/coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Run security checks
+        run: |
+          cd core
+          python -m venv .venv && source .venv/bin/activate
+          pip install bandit safety
+          bandit -r src -f json -o bandit-report.json || true
+          safety check --json --output safety-report.json || true
+      
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-reports
+          path: |
+            core/bandit-report.json
+            core/safety-report.json
+
+  build:
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./core
+          push: false
+          tags: jarvis-core:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

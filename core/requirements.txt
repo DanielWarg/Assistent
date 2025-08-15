@@ -1,0 +1,20 @@
+# Production dependencies for Jarvis Core
+# Generated from pyproject.toml
+
+# Core web framework
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+
+# Settings and configuration
+pydantic-settings>=2.3.0
+
+# Server-Sent Events
+sse-starlette>=2.0.0
+
+# Database and caching
+redis>=5.0.0
+sqlalchemy>=2.0.0
+alembic>=1.12.0
+
+# HTTP client for testing
+requests>=2.31.0
